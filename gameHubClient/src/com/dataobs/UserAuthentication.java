@@ -24,5 +24,5 @@ public class UserAuthentication {
         this.userNick  = userNick;
         this.circleIds = circleIds;
         this.gameIds = gameIds;
-    }
+   }
 }
