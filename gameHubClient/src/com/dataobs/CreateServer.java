@@ -7,16 +7,19 @@ package com.dataobs;
 
 /**
  *
- * @author Sanatt
+ * @author paritosh
  */
-public class CreateCircle {
-    String name;
+public class CreateServer{
+    Integer circleId;
     Integer userId;
     Integer gameId;
-    
-    public CreateCircle(String name, Integer userId, Integer gameId){
-        this.name = name;
+    Integer port;
+    String message;
+    public CreateServer(Integer circleId, Integer userId, Integer gameId, Integer port, String message){
+        this.circleId = circleId;
         this.userId = userId;
         this.gameId = gameId;
+        this.port = port;
+        this.message = message;
     }
 }
