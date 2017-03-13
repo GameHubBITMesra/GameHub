@@ -5,6 +5,10 @@
  */
 package com.gui.login;
 
+import com.Client;
+import com.Session;
+import com.dataobs.NewUser;
+import com.dataobs.UserLogin;
 import de.javasoft.plaf.synthetica.SyntheticaPlainLookAndFeel;
 import java.text.ParseException;
 
@@ -13,12 +17,14 @@ import java.text.ParseException;
  * @author Sanatt
  */
 public class LogInForm extends javax.swing.JFrame {
-
+    public Client client;
     /**
      * Creates new form LogInForm
      */
     public LogInForm() {
         initComponents();
+        Session session = new Session(0, null, null, null, null, "192.168.0.19", 1500);
+        client = new Client(session);
     }
 
     /**
@@ -47,7 +53,6 @@ public class LogInForm extends javax.swing.JFrame {
         jPasswordField2 = new javax.swing.JPasswordField();
         jButton2 = new javax.swing.JButton();
         jCheckBox1 = new javax.swing.JCheckBox();
-        jButton3 = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setMinimumSize(new java.awt.Dimension(900, 500));
@@ -60,8 +65,10 @@ public class LogInForm extends javax.swing.JFrame {
         jLabel2.setText("Password ");
 
         userLoginTF.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        userLoginTF.setText("Mavrk");
 
         userLoginPF.setFont(new java.awt.Font("Consolas", 0, 14)); // NOI18N
+        userLoginPF.setText("abcd");
 
         jButton1.setText("Log In");
         jButton1.addActionListener(new java.awt.event.ActionListener() {
@@ -88,16 +95,14 @@ public class LogInForm extends javax.swing.JFrame {
         jLabel7.setText("Confirm Password");
 
         jButton2.setText("Create");
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                jButton2ActionPerformed(evt);
+            }
+        });
 
         jCheckBox1.setFont(new java.awt.Font("Consolas", 0, 12)); // NOI18N
         jCheckBox1.setText("Remember Log in");
-
-        jButton3.setText("jButton3");
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(java.awt.event.ActionEvent evt) {
-                jButton3ActionPerformed(evt);
-            }
-        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -146,10 +151,8 @@ public class LogInForm extends javax.swing.JFrame {
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel3, javax.swing.GroupLayout.Alignment.TRAILING, javax.swing.GroupLayout.PREFERRED_SIZE, 169, javax.swing.GroupLayout.PREFERRED_SIZE)
                             .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
-                                .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
-                                    .addComponent(jButton3)
-                                    .addComponent(jButton2))
-                                .addGap(34, 34, 34)))))
+                                .addComponent(jButton2)
+                                .addGap(42, 42, 42)))))
                 .addContainerGap(109, Short.MAX_VALUE))
         );
         layout.setVerticalGroup(
@@ -193,9 +196,7 @@ public class LogInForm extends javax.swing.JFrame {
                     .addGroup(layout.createSequentialGroup()
                         .addGap(47, 47, 47)
                         .addComponent(jSeparator1, javax.swing.GroupLayout.PREFERRED_SIZE, 406, javax.swing.GroupLayout.PREFERRED_SIZE)))
-                .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED, 13, Short.MAX_VALUE)
-                .addComponent(jButton3)
-                .addContainerGap())
+                .addContainerGap(47, Short.MAX_VALUE))
         );
 
         pack();
@@ -203,12 +204,36 @@ public class LogInForm extends javax.swing.JFrame {
 
     private void jButton1ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton1ActionPerformed
         // TODO add your handling code here:
+        String userLoginNick = userLoginTF.getText();
+        String userLoginPassword = userLoginPF.getText();
+        UserLogin userLogin = new UserLogin(userLoginNick, userLoginPassword, null, null);
+        if(!client.startConnection()){
+            return;
+        }
+        client.sendObject(userLogin);
+        
+        
     }//GEN-LAST:event_jButton1ActionPerformed
 
-    private void jButton3ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton3ActionPerformed
+    private void jButton2ActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_jButton2ActionPerformed
         // TODO add your handling code here:
-        new MainForm().setVisible(true);
-    }//GEN-LAST:event_jButton3ActionPerformed
+        if(jTextField1.getText().isEmpty())
+            return;
+        else if (jTextField2.getText().isEmpty())
+            return;
+        else if (jPasswordField1.getText().isEmpty())
+            return;
+        else if (jPasswordField2.getText().isEmpty())
+            return;
+        else if (!jPasswordField2.getText().equals(jPasswordField1.getText()))
+            return;
+        
+        NewUser user = new NewUser(jTextField1.getText(), jTextField2.getText(), jPasswordField1.getText(), null);
+        if(!client.startConnection()){
+            return;
+        }
+        client.sendObject(user);
+    }//GEN-LAST:event_jButton2ActionPerformed
 
     /**
      * @param args the command line arguments
@@ -240,7 +265,6 @@ public class LogInForm extends javax.swing.JFrame {
     // Variables declaration - do not modify//GEN-BEGIN:variables
     private javax.swing.JButton jButton1;
     private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
     private javax.swing.JCheckBox jCheckBox1;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;

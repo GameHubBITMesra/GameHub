@@ -5,13 +5,16 @@
  */
 package com.dataobs;
     
+import java.io.Serializable;
+
     
 /**
  *
  * @author paritosh
  */
-public class NotificationMessage {
-    
+public class NotificationMessage implements Serializable{
+    protected static final long serialVersionUID = 5L;
+
     String gameName;
     String ip;
     Integer circleId;
@@ -21,4 +24,30 @@ public class NotificationMessage {
         this.ip = ip;
         this.circleId = circleId;
     }
+
+    public String getGameName() {
+        return gameName;
+    }
+
+    public String getIp() {
+        return ip;
+    }
+
+    public Integer getCircleId() {
+        return circleId;
+    }
+
+    public void setGameName(String gameName) {
+        this.gameName = gameName;
+    }
+
+    public void setIp(String ip) {
+        this.ip = ip;
+    }
+
+    public void setCircleId(Integer circleId) {
+        this.circleId = circleId;
+    }
+    
+    
 }

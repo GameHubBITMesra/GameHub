@@ -5,11 +5,15 @@
  */
 package com.dataobs;
 
+import java.io.Serializable;
+
 /**
  *
  * @author Sanatt
  */
-public class CreateCircle {
+public class CreateCircle implements Serializable{
+    protected static final long serialVersionUID = 2L;
+
     String name;
     Integer userId;
     Integer gameId;
@@ -19,4 +23,30 @@ public class CreateCircle {
         this.userId = userId;
         this.gameId = gameId;
     }
+
+    public String getName() {
+        return name;
+    }
+
+    public Integer getUserId() {
+        return userId;
+    }
+
+    public Integer getGameId() {
+        return gameId;
+    }
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setUserId(Integer userId) {
+        this.userId = userId;
+    }
+
+    public void setGameId(Integer gameId) {
+        this.gameId = gameId;
+    }
+
+    
 }

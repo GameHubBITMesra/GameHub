@@ -5,12 +5,20 @@
  */
 package com;
 
+import com.dataobs.CircleMessage;
+import com.dataobs.Circles;
+import com.dataobs.CreateServer;
+import com.dataobs.Games;
+import com.dataobs.UserAuthentication;
 import com.gui.login.LogInForm;
 import com.gui.login.MainForm;
+import java.awt.Window;
 import java.io.IOException;
 import java.io.ObjectInputStream;
 import java.io.ObjectOutputStream;
 import java.net.Socket;
+import java.util.ArrayList;
+import java.util.Objects;
 import javax.swing.JOptionPane;
 
 /**
@@ -21,13 +29,23 @@ public class Client {
     private ObjectInputStream cInput;		
     private ObjectOutputStream cOutput;		
     private Socket socket;
+    
 
     private LogInForm logInForm;
     private MainForm mainForm;
+
+    public Session getSession() {
+        return session;
+    }
     
     private Session session;
     private int port;
     private String serverIp;
+    boolean authenticated;
+
+    public boolean isAuthenticated() {
+        return authenticated;
+    }
     
     public Client() {
     
@@ -37,6 +55,7 @@ public class Client {
         this.session = session;
         this.port = this.session.port;
         this.serverIp = this.session.serverIp;
+        this.authenticated = false;
     }
     
     public boolean startConnection() {
@@ -60,16 +79,11 @@ public class Client {
 	}
         
         new ListenFromServer().start();
-        try {
-            cOutput.writeObject(session.userId);
-	} catch (IOException eIO) {
-            disconnect();
-            return false;
-	}
+        
         return true;
     }
     
-    private void disconnect() {
+    public void disconnect() {
         try { 
             if(cInput != null) cInput.close();
         } catch(Exception e) {} // not much else I can do
@@ -83,26 +97,96 @@ public class Client {
     
     public void sendObject(Object obj) {
         try {
+            System.out.println("Sending object" + obj.toString());
             cOutput.writeObject(obj);
         } catch(Exception e){
             System.out.println("Error sending object " + e);
         }
     }
     
+    public void checkLogIn(Object obj){
+        UserAuthentication uAuth = (UserAuthentication) obj;
+        if(uAuth.isSuccess()){
+            this.authenticated = true;
+            for(Window w: Window.getWindows())
+                if(w.isShowing())
+                    w.setVisible(false);
+               
+            JOptionPane.showMessageDialog(null,"Successfully logged in");
+            //update session
+            this.session = uAuth.getSession();
+            mainForm = new MainForm(this, uAuth.getUserName());
+            mainForm.setLocationRelativeTo(null);
+            mainForm.setVisible(true);
+        }
+        else{
+            System.out.println("here");
+            JOptionPane.showMessageDialog(null,"Wrong password");
+        }        
+    }
+    
+    public void checkNewUserCreation(Object obj){
+        Boolean res = (Boolean) obj;
+        if(res)
+            JOptionPane.showMessageDialog(null,"User successfully created");
+        else
+            JOptionPane.showMessageDialog(null, "Error creating new user");
+    }
+    
+    public void newIncomingMessage(Object obj){
+        CircleMessage cm = (CircleMessage) obj;
+        ArrayList<Circles> circles = this.getSession().getCircleIds();
+        
+        for(Circles c : circles){
+            System.out.println("hello2");
+            if(Objects.equals(c.cid, cm.getCircleId())){
+                mainForm.appendChatMessage(cm);
+                System.out.println("Recieved message "+cm.getMessage());
+                break;
+            }
+        }
+    }
+    public String getGameName(int gid){
+        ArrayList<Games> games = this.session.getGameIds();
+        for(Games G : games){
+            if(G.getGid() == gid){
+                return G.getGname();
+            }
+        }
+        return null;
+    }
+    
+    public void newIncomingServer(Object obj){
+        System.out.println("hollaa");
+        CreateServer cs = (CreateServer) obj;
+        ArrayList<Circles> circles = this.getSession().getCircleIds();
+        
+        for(Circles c : circles){
+            if(Objects.equals(c.cid, cs.getCircleId())){
+                mainForm.newNotification(getGameName(cs.getGameId()),  cs.getMessage());
+            }
+        }
+        
+    }
     class ListenFromServer extends Thread {
         public void run() {
             while(true) {
                 try {
                     Object obj = cInput.readObject();
-                    String objType = obj.getClass().getName();
+                    String objType = obj.getClass().getSimpleName();
                     System.out.println(""+objType);
                     switch(objType){
-                        case "com.dataobs.UserAuthentication" : System.out.println("UserAuthenticationClass");
+                        case "UserAuthentication" : checkLogIn(obj);
+                            break;    
+                        case "Boolean" : checkNewUserCreation(obj);
                             break;
-                            
+                        case "CircleMessage" : newIncomingMessage(obj);
+                            break;
+                        case "CreateServer" : newIncomingServer(obj);
+                            break;
                     }
                 } catch(Exception e){
-                
+                    e.printStackTrace();
                 }
                 
             }
